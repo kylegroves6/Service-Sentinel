@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+
+  monitor:
+    build: ./monitor
+    container_name: sentinel-monitor
+    ports:
+      - "12001:12001"
+      - "12002:12002/udp"
+    volumes:
+      - ./logs:/logs
+    networks:
+      - sentinel-net
+
+  agent-1:
+    build: ./agent
+    container_name: sentinel-agent-1
+    environment:
+      - AGENT_NAME=agent-1
+      - MONITOR_HOST=monitor
+    depends_on:
+      - monitor
+    networks:
+      - sentinel-net
+
+  agent-2:
+    build: ./agent
+    container_name: sentinel-agent-2
+    environment:
+      - AGENT_NAME=agent-2
+      - MONITOR_HOST=monitor
+    depends_on:
+      - monitor
+    networks:
+      - sentinel-net
+
+networks:
+  sentinel-net:
+    driver: bridge
